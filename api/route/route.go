@@ -1,6 +1,7 @@
 package route
 
 import (
+	"expression-backend/api/handlers"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -16,6 +17,9 @@ func NewRouterMux() *RouterMux {
 }
 
 func (router *RouterMux) RegisterRoutes() {
+	router.r.HandleFunc("/api/v1/register", handlers.RegisterUser)
+	router.r.HandleFunc("/api/v1/login", handlers.LoginUser)
+
 	//router.r.HandleFunc("/expressions/{id:[0-9]+}", handlers.GetExpression).Methods(http.MethodGet)
 	//router.r.HandleFunc("/expressions", handlers.GetExpressions).Methods(http.MethodGet)
 	//router.r.HandleFunc("/expressions", handlers.StoreExpression).Methods(http.MethodPost)

@@ -10,9 +10,21 @@ services:
     restart: unless-stopped
     networks:
       - network
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5444:5444"
+    volumes:
+      - expression-vlm:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=expression_user
+      - POSTGRES_PASSWORD=expression_password
+      - POSTGRES_DB=expression_db
+    networks:
+      - network
 networks:
   network:
     driver: bridge
     name: expression-network
 volumes:
-  expression-volume:
+  expression-vlm:
