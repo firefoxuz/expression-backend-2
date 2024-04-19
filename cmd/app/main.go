@@ -4,6 +4,7 @@ import (
 	"expression-backend/api/route"
 	"fmt"
 	"github.com/spf13/viper"
+	"log"
 	"net/http"
 	"time"
 )
@@ -33,6 +34,8 @@ func main() {
 		ReadHeaderTimeout: 15 * time.Second,
 		WriteTimeout:      15 * time.Second,
 	}
+
+	log.Printf("Server started at %s", serverAddr)
 
 	srv.ListenAndServe()
 }
