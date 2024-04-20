@@ -13,7 +13,7 @@ services:
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5444:5444"
+      - "5444:5432"
     volumes:
       - expression-vlm:/var/lib/postgresql/data
     environment:
