@@ -9,7 +9,7 @@ services:
       - "8085:8085"
     restart: unless-stopped
     networks:
-      - network
+      - expression-agent-2_network
   postgres:
     image: postgres:15-alpine
     ports:
@@ -21,10 +21,9 @@ services:
       - POSTGRES_PASSWORD=expression_password
       - POSTGRES_DB=expression_db
     networks:
-      - network
+      - expression-agent-2_network
 networks:
-  network:
-    driver: bridge
-    name: expression-network
+  expression-agent-2_network:
+    external: true
 volumes:
   expression-vlm:

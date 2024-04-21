@@ -43,76 +43,83 @@ func main() {
 		ReadHeaderTimeout: 15 * time.Second,
 		WriteTimeout:      15 * time.Second,
 	}
+	log.SetOutput(os.Stdout)
 
 	log.Printf("Server started at %s", serverAddr)
 
 	go func() {
-		host := "localhost"
-		port := "2552"
-
-		addr := fmt.Sprintf("%s:%s", host, port) // используем адрес сервера
-		// установим соединение
-		conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
-
-		if err != nil {
-			log.Println("could not connect to grpc server: ", err)
-			os.Exit(1)
-		}
-		// закроем соединение, когда выйдем из функции
-		defer conn.Close()
-
-		grpcClient := agent.NewMiniTaskServiceClient(conn)
-
 		for {
+		connectionStage:
+			host := "agent"
+			port := "2552"
 
-			time.Sleep(3 * time.Second)
+			addr := fmt.Sprintf("%s:%s", host, port) // используем адрес сервера
+			// установим соединение
+			conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
-			expressions, err := entities.GetNotFinishedExpressions()
 			if err != nil {
-				log.Println(err)
-				continue
+				log.Println("could not connect to grpc server: ", err)
+				time.Sleep(time.Second * 5)
+				break
 			}
+			// закроем соединение, когда выйдем из функции
+			defer conn.Close()
 
-			//fmt.Println(solve, err)
+			grpcClient := agent.NewMiniTaskServiceClient(conn)
 
-			for _, expression := range *expressions {
+			for {
 
-				exp := services.NewExpression(expression.Expression)
-				tokensAsString, err := exp.GetTokensAsString()
+				time.Sleep(3 * time.Second)
+
+				expressions, err := entities.GetNotFinishedExpressions()
+				log.Println("expressions ->", expressions)
 				if err != nil {
-					expression.IsValid = false
-					err = entities.UpdateExpression(expression)
 					log.Println(err)
 					continue
 				}
 
-				for {
-					singleExps, _ := services.FindSingleExpressions(tokensAsString)
+				for _, expression := range *expressions {
 
-					for _, singleExp := range singleExps {
-						solve, err := grpcClient.Solve(context.Background(), &agent.MiniTaskRequest{
-							ExpressionId: 1,
-							Task:         singleExp,
-						})
-						if err == nil {
-							tokensAsString = strings.ReplaceAll(tokensAsString, " "+singleExp+" ", " "+strconv.Itoa(int(solve.Result))+" ")
-						} else {
-							expression.IsValid = false
-							expression.IsFinished = true
-							_ = entities.UpdateExpression(expression)
+					exp := services.NewExpression(expression.Expression)
+					tokensAsString, err := exp.GetTokensAsString()
+					if err != nil {
+						expression.IsValid = false
+						err = entities.UpdateExpression(expression)
+						log.Println(err)
+						continue
+					}
+
+					for {
+						singleExps, _ := services.FindSingleExpressions(tokensAsString)
+						log.Println("singleExps ->", singleExps)
+						for _, singleExp := range singleExps {
+							solve, err := grpcClient.Solve(context.Background(), &agent.MiniTaskRequest{
+								ExpressionId: 1,
+								Task:         singleExp,
+							})
+							log.Println("solve ->", solve, err)
+							if err != nil {
+								goto connectionStage
+							}
+
+							if solve.IsValid {
+								tokensAsString = strings.ReplaceAll(tokensAsString, " "+singleExp+" ", " "+strconv.Itoa(int(solve.Result))+" ")
+							} else {
+								expression.IsFinished = true
+								expression.IsValid = false
+								_ = entities.UpdateExpression(expression)
+							}
+						}
+						if len(singleExps) == 0 {
 							break
 						}
 					}
-					if len(singleExps) == 0 {
-						break
-					}
+					expression.Result = tokensAsString
+					expression.IsFinished = true
+					_ = entities.UpdateExpression(expression)
 				}
-				expression.Result = tokensAsString
-				expression.IsFinished = true
-				_ = entities.UpdateExpression(expression)
 			}
 		}
-
 	}()
 
 	srv.ListenAndServe()
