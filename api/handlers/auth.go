@@ -3,8 +3,8 @@ package handlers
 import (
 	"expression-backend/internal/entities"
 	"expression-backend/internal/errors"
-	"expression-backend/internal/service"
 	"expression-backend/internal/utils"
+	"expression-backend/internal/validators"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,12 +21,12 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := service.ValidateLogin(credentials.Login); err != nil {
+	if err := validators.ValidateLogin(credentials.Login); err != nil {
 		_ = utils.RespondWith400(w, err.Error())
 		return
 	}
 
-	if err := service.ValidatePassword(credentials.Password); err != nil {
+	if err := validators.ValidatePassword(credentials.Password); err != nil {
 		_ = utils.RespondWith400(w, err.Error())
 		return
 	}
@@ -66,12 +66,12 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := service.ValidateLogin(credentials.Login); err != nil {
+	if err := validators.ValidateLogin(credentials.Login); err != nil {
 		_ = utils.RespondWith400(w, err.Error())
 		return
 	}
 
-	if err := service.ValidatePassword(credentials.Password); err != nil {
+	if err := validators.ValidatePassword(credentials.Password); err != nil {
 		_ = utils.RespondWith400(w, err.Error())
 		return
 	}

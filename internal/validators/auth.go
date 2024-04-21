@@ -1,4 +1,4 @@
-package service
+package validators
 
 import (
 	constErrors "expression-backend/internal/errors"

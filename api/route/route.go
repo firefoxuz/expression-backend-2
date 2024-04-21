@@ -2,7 +2,9 @@ package route
 
 import (
 	"expression-backend/api/handlers"
+	"expression-backend/internal/middleware"
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 type RouterMux struct {
@@ -19,10 +21,9 @@ func (router *RouterMux) RegisterRoutes() {
 	router.r.HandleFunc("/api/v1/register", handlers.RegisterUser)
 	router.r.HandleFunc("/api/v1/login", handlers.LoginUser)
 
-	//router.r.HandleFunc("/expressions/{id:[0-9]+}", handlers.GetExpression).Methods(http.MethodGet)
-	//router.r.HandleFunc("/expressions", handlers.GetExpressions).Methods(http.MethodGet)
-	//router.r.HandleFunc("/expressions", handlers.StoreExpression).Methods(http.MethodPost)
-	//router.r.HandleFunc("/agents", handlers.GetAgents).Methods(http.MethodGet)
+	router.r.HandleFunc("/api/v1/expressions/{id:[0-9]+}", middleware.AuthMiddleware(handlers.GetUserExpressions)).Methods(http.MethodGet)
+	router.r.HandleFunc("/api/v1/expressions", middleware.AuthMiddleware(handlers.GetUserExpressions)).Methods(http.MethodGet)
+	router.r.HandleFunc("/api/v1/expressions", middleware.AuthMiddleware(handlers.StoreUserExpression)).Methods(http.MethodPost)
 }
 
 func (router *RouterMux) GetRouter() *mux.Router {

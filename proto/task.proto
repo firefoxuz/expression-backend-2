@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "/agent";
+
+message MiniTaskRequest {
+  uint64 expressionId = 1;
+  string task = 2;
+}
+
+message MiniTaskResponse {
+  uint64 expressionId = 1;
+  string task = 2;
+  bool isValid = 3;
+  int64 result = 4;
+}
+
+service MiniTaskService {
+  rpc Solve(MiniTaskRequest) returns (MiniTaskResponse);
+}
