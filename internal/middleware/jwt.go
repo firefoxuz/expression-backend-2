@@ -42,9 +42,12 @@ func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ctx := context.WithValue(context.Background(), "login", login)
-		ctx = context.WithValue(ctx, "user", user)
+		ctx := r.Context()
 
-		next.ServeHTTP(w, r.WithContext(ctx))
+		ctx = context.WithValue(ctx, "login", login)
+		ctx = context.WithValue(ctx, "user", user)
+		req := r.WithContext(ctx)
+
+		next.ServeHTTP(w, req)
 	}
 }

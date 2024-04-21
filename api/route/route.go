@@ -21,9 +21,9 @@ func (router *RouterMux) RegisterRoutes() {
 	router.r.HandleFunc("/api/v1/register", handlers.RegisterUser)
 	router.r.HandleFunc("/api/v1/login", handlers.LoginUser)
 
-	router.r.HandleFunc("/api/v1/expressions/{id:[0-9]+}", middleware.AuthMiddleware(handlers.GetUserExpressions)).Methods(http.MethodGet)
 	router.r.HandleFunc("/api/v1/expressions", middleware.AuthMiddleware(handlers.GetUserExpressions)).Methods(http.MethodGet)
 	router.r.HandleFunc("/api/v1/expressions", middleware.AuthMiddleware(handlers.StoreUserExpression)).Methods(http.MethodPost)
+	router.r.HandleFunc("/api/v1/expressions/{id:[0-9]+}", middleware.AuthMiddleware(handlers.GetUserExpression)).Methods(http.MethodGet)
 }
 
 func (router *RouterMux) GetRouter() *mux.Router {

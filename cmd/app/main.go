@@ -90,11 +90,18 @@ func main() {
 					singleExps, _ := services.FindSingleExpressions(tokensAsString)
 
 					for _, singleExp := range singleExps {
-						solve, _ := grpcClient.Solve(context.Background(), &agent.MiniTaskRequest{
+						solve, err := grpcClient.Solve(context.Background(), &agent.MiniTaskRequest{
 							ExpressionId: 1,
 							Task:         singleExp,
 						})
-						tokensAsString = strings.ReplaceAll(tokensAsString, " "+singleExp+" ", " "+strconv.Itoa(int(solve.Result))+" ")
+						if err == nil {
+							tokensAsString = strings.ReplaceAll(tokensAsString, " "+singleExp+" ", " "+strconv.Itoa(int(solve.Result))+" ")
+						} else {
+							expression.IsValid = false
+							expression.IsFinished = true
+							_ = entities.UpdateExpression(expression)
+							break
+						}
 					}
 					if len(singleExps) == 0 {
 						break

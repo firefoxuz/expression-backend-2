@@ -47,6 +47,7 @@ func GetUserExpression(w http.ResponseWriter, r *http.Request) {
 	expression, err := entities.FindExpressionById(id)
 	if err != nil {
 		_ = utils.RespondWith404(w)
+		return
 	}
 
 	if expression.UserId != user.Id {
