@@ -40,7 +40,7 @@ Follow these steps to set up the Expression Calculator Service and Expression Ag
 5. Apply database migrations:
 
     ```bash
-    docker run -v ./db/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database postgres://expression_user:expression_password@localhost:5432/expression_db?sslmode=disable up
+    docker run -v ./db/migrations:/migrations --network host migrate/migrate -path=/migrations/ -database postgres://expression_user:expression_password@localhost:5444/expression_db?sslmode=disable up
     ```
 
 ### Expression Agent
